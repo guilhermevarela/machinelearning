@@ -18,7 +18,8 @@ def main():
 		3. batch SGD with nesterov momentum
 	'''
 	
-	max_iter = 20
+	#max_iter = 20 for ReLU
+	max_iter = 30
 	print_period = 10 	
 	X, Y   = get_normalized_data()
 	lr = 0.0004
