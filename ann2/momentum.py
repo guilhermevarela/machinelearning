@@ -9,7 +9,7 @@ Contains: gradient descent/mlp
 import numpy as np 
 import matplotlib.pyplot as plt 
 from util import get_normalized_data,  error_rate, cost,  y2indicator 
-from mlp import forward, derivative_b1, derivative_w1, derivative_b2, derivative_w2
+from mlp1 import forward, derivative_b1, derivative_w1, derivative_b2, derivative_w2
 
 def main():
 	'''
@@ -27,12 +27,12 @@ def main():
 	reg = 0.01 
 
 	
-	Xtrain = X[:-1000,]
-	Ytrain = Y[:-1000]
-	Xtest = X[-1000:,]
-	Ytest = Y[-1000:]
+	Xtrain     = X[:-1000,]
+	Ytrain 		 = Y[:-1000]
+	Xtest  		 = X[-1000:,]
+	Ytest  		 = Y[-1000:]
 	Ytrain_ind = y2indicator(Ytrain)
-	Ytest_ind = y2indicator(Ytest)
+	Ytest_ind  = y2indicator(Ytest)
 	
 	
 	N, D = Xtrain.shape
@@ -104,6 +104,8 @@ def main():
 			pYbatch, Z = forward(Xbatch, W1, b1, W2, b2) 
 			 
 
+			
+
 			dW2 = mu*dW2 - lr*(derivative_w2(Z, Ybatch, pYbatch) + reg*W2)			
 			W2 += dW2
 			db2 = mu*db2 - lr*(derivative_b2(Ybatch,pYbatch) + reg*b2)
@@ -139,26 +141,35 @@ def main():
 	LL_nest = [] 
 	CR_nest = [] 
 	mu = 0.9
-	dW2 = 0 
-	db2 = 0 	
-	dW1 = 0 
-	db1 = 0 	
+	
+	vW2 = 0
+ 	vb2 = 0
+ 	vW1 = 0
+ 	vb1 = 0
 	for i in xrange(max_iter):
 		for j in xrange(n_batches):
 		
 			Xbatch = Xtrain[j*batch_sz:((j+1)*batch_sz), :]
 			Ybatch = Ytrain_ind[j*batch_sz:((j+1)*batch_sz), :]
-			pYbatch, Z = forward(Xbatch, W1, b1, W2, b2) 
-			 
 
-			dW2 = mu*mu*dW2 - (1+mu)*lr*(derivative_w2(Z, Ybatch, pYbatch) + reg*W2)			
-			W2 += dW2
-			db2 = mu*mu*db2 - (1+mu)*lr*(derivative_b2(Ybatch,pYbatch) + reg*b2)
-			b2 += db2 
-			dW1 = mu*mu*dW1 - (1+mu)*lr*(derivative_w1(Xbatch, Z, Ybatch, pYbatch, W2) + reg*W1)
-			W1 += dW1
-			db1 = mu*mu*db1 - (1+mu)*lr*(derivative_b1(Z, Ybatch, pYbatch, W2) + reg*b1)			
-			b1 += db1
+			# because we want g(t) = grad(f(W(t-1) - lr*mu*dW(t-1)))
+			# dW(t) = mu*dW(t-1) + g(t)
+			# W(t) = W(t-1) - mu*dW(t)
+			W1_tmp = W1 - lr*mu*vW1
+			b1_tmp = b1 - lr*mu*vb1
+			W2_tmp = W2 - lr*mu*vW2
+			b2_tmp = b2 - lr*mu*vb2
+			pYbatch, Z = forward(Xbatch, W1_tmp, b1_tmp, W2_tmp, b2_tmp)
+
+
+			vW2 = mu*vW2 + derivative_w2(Z, Ybatch, pYbatch) + reg*W2_tmp
+			W2 -= lr*vW2
+			vb2 = mu*vb2 + derivative_b2(Ybatch, pYbatch) + reg*b2_tmp
+			b2 -= lr*vb2
+			vW1 = mu*vW1 + derivative_w1(Xbatch, Z, Ybatch, pYbatch, W2_tmp) + reg*W1_tmp
+			W1 -= lr*vW1
+			vb1 = mu*vb1 + derivative_b1(Z, Ybatch, pYbatch, W2_tmp) + reg*b1_tmp
+			b1 -= lr*vb1
 
 
 			if j % print_period ==0:

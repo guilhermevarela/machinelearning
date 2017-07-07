@@ -20,10 +20,7 @@ from mlp import forward, derivative_b1, derivative_w1, derivative_b2, derivative
 
 def main():
 	'''
-		Use momentum + batch SGD
-		1. batch SGD
-		2. batch SGD with momentum
-		3. batch SGD with nesterov momentum
+		RMSprop is a form adaptative learning rate which decreases over time
 	'''
 	
 	max_iter = 20  #for RelU

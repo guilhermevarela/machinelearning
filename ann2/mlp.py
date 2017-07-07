@@ -10,11 +10,11 @@ import numpy as np
 
 def forward(X, W1, b1, W2, b2):
 	#SIGMOID
-	Z  = 1 / (1 + np.exp(-( X.dot(W1) + b1)))
+	#Z  = 1 / (1 + np.exp(-( X.dot(W1) + b1)))
 
 	#ReLU
-	# Z = X.dot(W1) + b1 
-	# Z[Z<0] = 0 
+	Z = X.dot(W1) + b1 
+	Z[Z<0] = 0 
 
 	#Softmax 
 	A = Z.dot(W2) + b2 
@@ -30,11 +30,11 @@ def derivative_b2(T, Y):
 	return (Y-T).sum(axis=0)	
 
 def derivative_w1(X, Z, T, Y, W2):
-	return X.T.dot(( Y-T ).dot((W2.T))*(Z*(1-Z))) # for sigmoid
+	#return X.T.dot(( Y-T ).dot((W2.T))*(Z*(1-Z))) # for sigmoid
 	#return X.T.dot( ( Y-T ).dot(W2.T)*np.sign(Z) )
-	#return X.T.dot( ( ( Y-T ).dot(W2.T) * (Z > 0) ) ) # for relu
+	return X.T.dot( ( ( Y-T ).dot(W2.T) * (Z > 0) ) ) # for relu
 
 def derivative_b1(Z, T, Y, W2):
-	return ((Y-T).dot((W2.T))*(Z*(1-Z))).sum(axis=0)   # for sigmoid
+	#return ((Y-T).dot((W2.T))*(Z*(1-Z))).sum(axis=0)   # for sigmoid
 	#return ((Y-T).dot(W2.T) + np.sign(Z) ).sum(axis=0) # for ReLU
-	#return (( Y-T ).dot(W2.T) * (Z > 0)).sum(axis=0) # for ReLU
+	return (( Y-T ).dot(W2.T) * (Z > 0)).sum(axis=0) # for ReLU
