@@ -51,8 +51,8 @@ def main():
 	W2_init = np.random.randn(M, K) / np.sqrt(M)
 	b2_init = np.zeros(K)
 
-	thX = theano.matrix('X')
-	thT = theano.matrix('T')
+	thX = T.matrix('X')
+	thT = T.matrix('T')
 
 	W1 = theano.shared(W1_init, 'W1')
 	b1 = theano.shared(b1_init, 'b1')
@@ -63,18 +63,18 @@ def main():
 	thZ = relu(thX.dot(W1) + b1)
 	thY = T.nnet.softmax(thZ.dot(W2) + b2)
 
-	cost = -(thT * T.log(thY)).sum() + reg*((W1 * W1).sum() + (b1 * b2).sum() + (W2*W2).sum() + (b2*b2).sum())
+	cost = -(thT * T.log(thY)).sum() + reg*((W1 * W1).sum() + (b1 * b1).sum() + (W2*W2).sum() + (b2*b2).sum())
 	prediction = T.argmax(thY, axis=1)
 
 
 	update_W1 = W1 - lr*T.grad(cost, W1)
 	update_b1 = b1 - lr*T.grad(cost, b1)
-	update_W2 = W1 - lr*T.grad(cost, W2)
-	update_b2 = b1 - lr*T.grad(cost, b2)
+	update_W2 = W2 - lr*T.grad(cost, W2)
+	update_b2 = b2 - lr*T.grad(cost, b2)
 
 	train = theano.function(
 		inputs=[thX, thT],
-		updates=[(W1, update_W1), (b1, update_b1), (W2, update_W2), (b1, update_b2) ],
+		updates=[(W1, update_W1), (b1, update_b1), (W2, update_W2), (b2, update_b2) ],
 	)
 
 	get_prediction = theano.function(
@@ -98,5 +98,5 @@ def main():
 	plt.show()
 
 
-if __name__ == 'main':
+if __name__ == '__main__':
 	main()
