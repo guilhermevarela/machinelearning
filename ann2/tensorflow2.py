@@ -50,7 +50,7 @@ def main():
 	W2_init = np.random.randn(M1, M2) / np.sqrt(M1)
 	b2_init = np.zeros(M2)
 	W3_init = np.random.randn(M2, K) / np.sqrt(M2)
-	b3_init = np.zeros(M2)
+	b3_init = np.zeros(K)
 
 
 	X = tf.placeholder(tf.float32, shape=(None, D), name='X')
@@ -71,7 +71,7 @@ def main():
 	Z2 = tf.nn.relu( tf.matmul( Z1, W2) + b2 )
 	Yish = tf.matmul(Z2, W3) + b3 
 
-	cost = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(Yish, T))
+	cost = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(labels=T, logits=Yish))
 
 	train_op = tf.train.RMSPropOptimizer(lr, decay=0.99, momentum=0.9).minimize(cost)
 	predict_op = tf.argmax(Yish, 1)
