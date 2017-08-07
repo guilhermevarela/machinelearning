@@ -64,3 +64,71 @@ class ANN(object):
 		X, Y = X[:-1000], Y[:-1000]
 
 		self.rng = RandomStreams() 
+
+		#initialize hidden layers
+		N, D  = X.shape
+		K = len(set(Y))
+		self.hidden_layers=[]
+		M1 = D 
+		count=0
+		for M2 in self.hidden_layer_sizes:
+			h = HiddenLayer(M1, M2, count)
+			self.hidden_layers.append(h)
+			M1=M2
+			count+=1
+		
+		W = np.random.randn(M1,K) / np.sqrt(M1)
+		b = np.zeros(K)
+
+		self.W = theano.shared(W, 'W_logreg')
+		self.b = theano.shared(b, 'b_logreg')
+
+		#collect parameters for latter use
+		self.params = [self.W, self.b]
+		for h in self.hidden_layers:
+			self.params += h.params
+
+		#setup theano functions and variables
+		thX = T.matrix('X')
+		thY = T.ivector('Y')
+		pY_train = self.forward_train(thX)
+
+		#this is cost for training
+		cost = -T.mean(T.log(pY_train[T.arange(thY.shape[0]), thY]))
+
+		#gradients wrt each param
+		grads= T.grad(cost, self.params)
+
+		#for momentum 
+		dparams=[theano.shared(np.zeros_like(p.get_value())) for p in self.params]
+
+		#for rmsprop
+		cache = [theano.shared(np.ones_like(p.get_values())) for p in self.params]
+
+		new_cache = [decay*c + (1-decay)*g*g for p, c, g in zip(self.params, cache, grads)]
+		new_dparams = [mu*dp - learning_rate*(g/T.sqrt(new_c + 1e-10)) for p, new_c, dp, g in zip(self.params, new_cache, dparams, grads)]
+		updates = [
+			(c, new_c) for c, new_c in zip(cache, new_cache)
+		] + [
+			(dp, new_dp) for dp, new_dp in zip(dparams, new_dparams)
+		] + [
+			(p, p + new_dp) for p, new_dp in zip(dparams, new_dparams)
+		]
+
+		train_op = th.function(
+			inputs=[thX, thY],
+			updates=updates
+		)
+
+		#for evaluation and prediction
+		pY_predict = self.forward_predict(thX)
+		cost_predict = -T.mean(T.log(pY_predict[T.arange(thY.shape[0]),thY]))
+		prediction = self.predict(thX)
+		cost_predict_op = th.function(inputs=[thX, thY], outputs=[cost_predict, prediction])
+
+		n_batches= N/batch_size
+		costs = [] 
+		
+
+
+
