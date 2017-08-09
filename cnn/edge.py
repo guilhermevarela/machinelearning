@@ -4,7 +4,7 @@ Created on Ago 08, 2017
 @author: Varela
 
 For the class Data Science: Deep Learning convolutional neural networkds on theano and tensorflow
-lecture #9; Using convolution to apply gaussian blur to lena.png 
+lecture #9; Using convolution to find edges on lena.png 
 course url: https://udemy.com/deep-learning-convolutional-neural-networks-theano-tensorflow
 lecture url: https://www.udemy.com/deep-learning-convolutional-neural-networks-theano-tensorflow/learn/v4/t/lecture/4847754?start=0
 

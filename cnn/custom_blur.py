@@ -35,7 +35,7 @@ for i in xrange(20):
 plt.imshow(W, cmap='gray')		
 plt.show()
 
-#mode='same' keeps output from the same size
+#mode='same' keeps output from the same size after convolution
 out = convolve2d(bw, W, mode='same')
 plt.imshow(out, cmap='gray')		
 plt.show()
