@@ -6,7 +6,7 @@ Created on May 19, 2017
 
 import numpy as np 
 import matplotlib.pyplot as plt
-import util.util as utl 
+import util as utl 
 
 nclass = 500
 # Build gaussian clouds
