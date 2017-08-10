@@ -4,9 +4,9 @@ Created on Ago 10, 2017
 @author: Varela
 
 For the class Data Science: Deep Learning convolutional neural networkds on theano and tensorflow
-lecture #18 CNN in theano
+lecture #19 CNN in theano + PLOT of the cost
 course url: https://udemy.com/deep-learning-convolutional-neural-networks-theano-tensorflow
-lecture url: https://www.udemy.com/deep-learning-convolutional-neural-networks-theano-tensorflow/learn/v4/t/lecture/6620952?start=0
+lecture url: https://www.udemy.com/deep-learning-convolutional-neural-networks-theano-tensorflow/learn/v4/t/lecture/5486164?start=0
 
 '''
 import os 
@@ -236,6 +236,42 @@ def main():
 	print "elapsed time", datetime.now() - t0 				
 	plt.plot(LL)
 	plt.show()
+
+	#visualize W1 (20, 3, 5, 5)
+	W1_val = W1.get_value()
+	grid   = np.zeros((8*5, 8*5))
+	m = 0 
+	n = 0 
+	for i in xrange(20):
+		for j in xrange(3):
+			filt = W1_val[i,j]
+			grid[m*5:(m+1)*5, n*5:(n+1)*5] = filt 
+			m +=1 
+			if m >= 8:  
+				m = 0 
+				n += 1
+	plt.imshow(grid, cmap='gray')
+	plt.title("W1")
+	plt.show()
+
+
+	#visualize W2 (50, 20, 5, 5)
+	W1_val = W1.get_value()
+	grid   = np.zeros((32*5, 32*5))
+	m = 0 
+	n = 0 
+	for i in xrange(50):
+		for j in xrange(20):
+			filt = W1_val[i,j]
+			grid[m*5:(m+1)*5, n*5:(n+1)*5] = filt 
+			m +=1 
+			if m >= 32:  
+				m = 0 
+				n += 1
+	plt.imshow(grid, cmap='gray')
+	plt.title("W2")
+	plt.show()
+
 
 
 if __name__ == '__main__':
