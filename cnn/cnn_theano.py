@@ -96,8 +96,6 @@ def main():
 	Xtest = rearrange(test['X'])
 	Ytest = test['y'].flatten() -1 #matlab arrays are 1 indexed
 	del test
-
-	Xtest, Ytest = shuffle(Xtest, Ytest)
 	Ytest_ind = y2indicator(Ytest)
 
 	max_iter = 8
