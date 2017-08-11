@@ -256,13 +256,13 @@ def main():
 
 
 	#visualize W2 (50, 20, 5, 5)
-	W1_val = W1.get_value()
+	W2_val = W2.get_value()
 	grid   = np.zeros((32*5, 32*5))
 	m = 0 
 	n = 0 
 	for i in xrange(50):
 		for j in xrange(20):
-			filt = W1_val[i,j]
+			filt = W2_val[i,j]
 			grid[m*5:(m+1)*5, n*5:(n+1)*5] = filt 
 			m +=1 
 			if m >= 32:  
