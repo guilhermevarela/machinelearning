@@ -5,6 +5,13 @@ Created on Ago 10, 2017
 
 For the class Data Science: Deep Learning convolutional neural networkds on theano and tensorflow
 lecture #21 CNN in tensorflow
+
+New concepts and differences from Theano:
+- stride is the interval at which to apply the convolution
+- unlike previous course, we use constant-size input to the network
+  since not doing that caused us to start swapping
+- the output after convpool is a different size (8,8) here, (5,5) in Theano
+
 course url: https://udemy.com/deep-learning-convolutional-neural-networks-theano-tensorflow
 lecture url: https://www.udemy.com/deep-learning-convolutional-neural-networks-theano-tensorflow/learn/v4/t/lecture/4847770?start=0
 
@@ -17,7 +24,7 @@ import tensorflow as tf
 
 
 from scipy.io import loadmat 
-from sklearn.utils import shuffle
+
 
 from datetime import datetime 
 from util import y2indicator 
@@ -31,15 +38,15 @@ def relu(a):
 def convpool(X, W, b):
 	#just assume pool size is (2,2) because we need to augment it with 1s
 
-	conv_out = tf.nn.conv2d(input=X, filters=W, strides=[1,1,1,1], padding='SAME')	
+	conv_out = tf.nn.conv2d(X, W, strides=[1,1,1,1], padding='SAME')	
 	conv_out = tf.nn.bias_add(conv_out, b)	
-	pooled_out = tf.nn.max_pool(
+	pool_out = tf.nn.max_pool(
 		conv_out,
 		ksize=[1,2,2,1],
 		strides=[1,2,2,1],
 		padding='SAME'
 	)
-	return pool_out 
+	return tf.nn.relu(pool_out) 
 
 
 
@@ -103,9 +110,9 @@ def main():
 	print_period=10
 	N 	= Xtrain.shape[0] 
 
-	lr = np.float32(1e-5)
-	reg = np.float32(1e-2)
-	mu = np.float32(1.0 - 1e-2)
+	# lr = np.float32(1e-5)
+	# reg = np.float32(1e-2)
+	# mu = np.float32(1.0 - 1e-2)
 
 
 	N  = Xtrain.shape[0] 
@@ -144,29 +151,19 @@ def main():
 
 
 	# step 2: define tensorflow variables
-	X = tf.placeholder(tf.float32, shape=(batch_size, 3, 32, 32), name='X')
+	X = tf.placeholder(tf.float32, shape=(batch_size, 32, 32, 3), name='X')
 	T = tf.placeholder(tf.float32, shape=(batch_size, K), name='T')
 
 	# Y = T.matrix('T')
 
-	W1 = tf.Variable(W1_init, name='W1')
-	b1 = tf.Variable(b1_init, name='b1')
-	W2 = tf.Variable(W2_init, name='W2')
-	b2 = tf.Variable(b2_init, name='b2')
+	W1 = tf.Variable(W1_init.astype(np.float32), name='W1')
+	b1 = tf.Variable(b1_init.astype(np.float32), name='b1')
+	W2 = tf.Variable(W2_init.astype(np.float32), name='W2')
+	b2 = tf.Variable(b2_init.astype(np.float32), name='b2')
 	W3 = tf.Variable(W3_init.astype(np.float32), name='W3')
-	b3 = tf.Variable(b3_init, name='b3')
+	b3 = tf.Variable(b3_init.astype(np.float32), name='b3')
 	W4 = tf.Variable(W4_init.astype(np.float32), name='W4')
-	b4 = tf.Variable(b4_init, name='b4')
-
-	# momentum changes
-	dW1 = tf.Variable(np.zeros(W1_init.shape, dtype=np.float32), name='dW1')
-	db1 = tf.Variable(np.zeros(b1_init.shape, dtype=np.float32), name='db1')
-	dW2 = tf.Variable(np.zeros(W2_init.shape, dtype=np.float32), name='dW2')
-	db2 = tf.Variable(np.zeros(b2_init.shape, dtype=np.float32), name='db2')
-	dW3 = tf.Variable(np.zeros(W3_init.shape, dtype=np.float32), name='dW3')
-	db3 = tf.Variable(np.zeros(b3_init.shape, dtype=np.float32), name='db3')
-	dW4 = tf.Variable(np.zeros(W4_init.shape, dtype=np.float32), name='dW4')
-	db4 = tf.Variable(np.zeros(b4_init.shape, dtype=np.float32), name='db4')
+	b4 = tf.Variable(b4_init.astype(np.float32), name='b4')
 
 	#forward pass
 	Z1 = convpool(X, W1, b1)
@@ -177,71 +174,41 @@ def main():
 	Z3 			 = tf.nn.relu(tf.matmul(Z2r, W3) + b3)
 	Yish     = tf.matmul(Z3, W4) + b4 
 	
-
-	params = (W1, b1, W2, b2, W3, b3, W4, b4)
-	reg_cost = reg*np.sum((param*param).sum() for param in params)
-	cost = -(Y * T.log(pY)).sum() + reg_cost 
-	prediction = T.argmax(pY, axis=1)
-
-	update_W1 = W1 + mu*dW1 - lr*T.grad(cost, W1)
-	update_b1 = b1 + mu*db1 - lr*T.grad(cost, b1)
-	update_W2 = W2 + mu*dW2 - lr*T.grad(cost, W2)
-	update_b2 = b2 + mu*db2 - lr*T.grad(cost, b2)
-	update_W3 = W3 + mu*dW3 - lr*T.grad(cost, W3)
-	update_b3 = b3 + mu*db3 - lr*T.grad(cost, b3)
-	update_W4 = W4 + mu*dW4 - lr*T.grad(cost, W4)
-	update_b4 = b4 + mu*db4 - lr*T.grad(cost, b4)
-
-	update_dW1 = mu*dW1 - lr*T.grad(cost, W1)
-	update_db1 = mu*db1 - lr*T.grad(cost, b1)
-	update_dW2 = mu*dW2 - lr*T.grad(cost, W2)
-	update_db2 = mu*db2 - lr*T.grad(cost, b2)
-	update_dW3 = mu*dW3 - lr*T.grad(cost, W3)
-	update_db3 = mu*db3 - lr*T.grad(cost, b3)
-	update_dW4 = mu*dW4 - lr*T.grad(cost, W4)
-	update_db4 = mu*db4 - lr*T.grad(cost, b4)
-
-	train = theano.function(
-		inputs=[X,Y],
-		updates=[
-			(W1, update_W1),
-			(b1, update_b1),
-			(W2, update_W2),
-			(b2, update_b2),
-			(W3, update_W3),
-			(b3, update_b3),
-			(W4, update_W4),
-			(b4, update_b4),
-			(dW1, update_dW1),
-			(db1, update_db1),
-			(dW2, update_dW2),
-			(db2, update_db2),
-			(dW3, update_dW3),
-			(db3, update_db3),
-			(dW4, update_dW4),
-			(db4, update_db4),
-		],
-	)
-
-	get_prediction = theano.function(
-		inputs=[X,Y],
-		outputs=[cost, prediction],
-
-	)
+	
+	cost      = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(logits=Yish, labels=T))
+	train_op  = tf.train.RMSPropOptimizer(0.0001, decay=0.99, momentum=0.9).minimize(cost)
+	#we'll use this to calculate error rate
+	prediction_op = tf.argmax(Yish, 1)
 
 	t0 = datetime.now()
 	LL = []
-	for i in xrange(max_iter):
-		for j in xrange(n_batches):
-			
-			Xbatch = Xtrain[j*batch_size:((j+1)*batch_size), :]
-			Ybatch = Ytrain_ind[j*batch_size:((j+1)*batch_size), :]
-			train(Xbatch, Ybatch)
-			if j % print_period == 0:
-				cost_val, prediction_val = get_prediction(Xtest, Ytest_ind)
-				err = error_rate(prediction_val, Ytest)
-				print "Cost at iteration i=%d, j=%d: %.3f / %.3f" % (i, j, cost_val, err)
-				LL.append(cost_val)
+	init = tf.global_variables_initializer()
+	with tf.Session() as session: 
+		session.run(init)
+
+		for i in xrange(max_iter):
+			for j in xrange(n_batches):				
+				Xbatch = Xtrain[j*batch_size:((j+1)*batch_size), :]
+				Ybatch = Ytrain_ind[j*batch_size:((j+1)*batch_size), :]
+				
+				if len(Xbatch) == batch_size:
+					session.run(train_op, feed_dict={X: Xbatch, T: Ybatch})					
+					if j % print_period == 0:
+						#do due to RAM limitations we need to have a fixed size input 
+						#so as result, we have this ugly total cost and prediction computation
+						test_cost =0
+						prediction= np.zeros(len(Xtest))
+						for k in xrange(len(Xtest)/ batch_size):
+							Xtestbatch = Xtest[k*batch_size:((k+1)*batch_size), :]	
+							Ytestbatch = Ytest_ind[k*batch_size:((k+1)*batch_size), :]
+							test_cost += session.run(cost, feed_dict={X:Xtestbatch, T: Ytestbatch})
+							prediction[k*batch_size:((k+1)*batch_size), :] = session.run(
+								prediction_op, feed_dict={X: Xtestbatch}
+							)
+						
+						err = error_rate(prediction, Ytest)
+						print "Cost at iteration i=%d, j=%d: %.3f / %.3f" % (i, j, test_cost, err)
+						LL.append(test_cost)
 	print "elapsed time", datetime.now() - t0 				
 	plt.plot(LL)
 	plt.show()
