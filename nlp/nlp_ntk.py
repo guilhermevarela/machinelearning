@@ -39,13 +39,20 @@ stemmer = PorterStemmer()
 print "Wolves stems to :", stemmer.stem('Wolves')
 print "Jumping stems to :", stemmer.stem('Jumping')
 
-#Stemmer reduces to base form with correct radical
+#Lemmatizers reduces to base form with correct radical
 lemmatizer = WordNetLemmatizer()
 
 print "Wolves lemmatizes to :", lemmatizer.lemmatize('Wolves') #--> should be working
 print "Jumping lemmatizes to :", lemmatizer.lemmatize('Jumping')
 
 s = "Albert Einstein was born on March 14, 1879"
+tags = nltk.pos_tag(s.split())
+print tags 
+
+print nltk.ne_chunk(tags)
+print nltk.ne_chunk(tags).draw()
+
+s = "Steve Jobes was the CEO of Apple"
 tags = nltk.pos_tag(s.split())
 print tags 
 
