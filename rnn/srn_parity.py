@@ -43,13 +43,13 @@ class SimpleRNN(object):
 
 		self.params=[self.Wx, self.Wh, self.bh, self.h0, self.Wo, self.bo] 
 
-		#Theano Inputs / Outputs
+		# #Theano Inputs / Outputs
 		thX = T.fmatrix('X')
 		thY = T.ivector('Y')
 
 		def recurrence(x_t, h_t1):
 			#returns h(t), y(t)
-			h_t = self.f(x_t.dot(self.Wx) + h_t1.dot(Wh) + self.bh)
+			h_t = self.f(x_t.dot(self.Wx) + h_t1.dot(self.Wh) + self.bh)
 			y_t = T.nnet.softmax(h_t.dot(self.Wo) + self.bo)
 			return h_t, y_t
 
@@ -73,7 +73,8 @@ class SimpleRNN(object):
 			(dp, mu*dp - learning_rate*g) for dp, g in zip(dparams, grads)
 		]
 
-		self.predict = theano.fuction(inputs=[thX],outputs=prediction)
+		self.predict = theano.function(inputs=[thX],outputs=prediction)
+
 		self.train = theano.function(
 			inputs=[thX, thY],
 			updates=updates,
@@ -90,8 +91,10 @@ class SimpleRNN(object):
 				cost += c 
 				if p[-1] == Y[j, -1]:
 					n_correct +=1 
-			print "shape y:", rout.shape
-			print "i:%d\tj:%d\tnb:%d\tc:%.3f\terr:%.3f\t" % (i,j,1,c,1.0-float(n_correct)/N)
+			
+			err = 1.0-(float(n_correct)/N)		
+			print "shape y:", rout.shape		
+			print "i:%d\tj:%d\tnb:%d\tc:%.3f\terr:%.3f\t" % (i,j,1,c,err)
 			costs.append(cost)
 			if n_correct == N: 
 				break
@@ -100,7 +103,7 @@ class SimpleRNN(object):
 			plt.show()
 
 
-def parity(B=12, learning_rate=10e-5, epochs=200): 
+def parity(B=12, learning_rate=10e-4, epochs=200): 
 	X, Y_t = all_parity_pairs_with_sequence_labels(B)
 
 	rnn = SimpleRNN(4)
