@@ -2,7 +2,7 @@
 Created on Ago 26, 2017
 
 @author: Varela
-motivation: Compute Fibonnachi using theano scan
+motivation: Compute Fibonnaci using theano scan
 course url: https://www.udemy.com/deep-learning-recurrent-neural-networks-in-python/learn/v4/t/lecture/5359716?start=0
 '''
 
