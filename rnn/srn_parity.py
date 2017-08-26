@@ -92,9 +92,9 @@ class SimpleRNN(object):
 				if p[-1] == Y[j, -1]:
 					n_correct +=1 
 			
-			err = 1.0-(float(n_correct)/N)		
+			classification_rate = (float(n_correct)/N)
 			print "shape y:", rout.shape		
-			print "i:%d\tj:%d\tnb:%d\tc:%.3f\terr:%.3f\t" % (i,j,1,c,err)
+			print "i:%d\tj:%d\tnb:%d\tc:%.3f\terr:%.3f\t" % (i,j,1,c,1.0-classification_rate)
 			costs.append(cost)
 			if n_correct == N: 
 				break
@@ -106,7 +106,7 @@ class SimpleRNN(object):
 def parity(B=12, learning_rate=10e-4, epochs=200): 
 	X, Y_t = all_parity_pairs_with_sequence_labels(B)
 
-	rnn = SimpleRNN(4)
+	rnn = SimpleRNN(20)
 	rnn.fit(X, Y_t, learning_rate=learning_rate, epochs=epochs,activation=T.nnet.relu, show_fig=True)
 
 if __name__ == '__main__':
