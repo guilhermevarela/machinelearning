@@ -118,7 +118,7 @@ def wide():
 def deep():
 	X, Y = all_parity_pairs(12)
 	ann = AnnTheano([1024]*2)
-	ann.fit(X, Y, learning_rate=10e-4, print_period=10, epochs=100, show_fig=True)
+	ann.fit(X, Y, learning_rate=10e-4, print_period=10, epochs=70, show_fig=True)
 
 
 if __name__ == '__main__':
