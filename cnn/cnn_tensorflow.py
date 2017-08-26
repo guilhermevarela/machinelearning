@@ -202,7 +202,7 @@ def main():
 							Xtestbatch = Xtest[k*batch_size:((k+1)*batch_size), :]	
 							Ytestbatch = Ytest_ind[k*batch_size:((k+1)*batch_size), :]
 							test_cost += session.run(cost, feed_dict={X:Xtestbatch, T: Ytestbatch})
-							prediction[k*batch_size:((k+1)*batch_size), :] = session.run(
+							prediction[k*batch_size:((k+1)*batch_size)] = session.run(
 								prediction_op, feed_dict={X: Xtestbatch}
 							)
 						

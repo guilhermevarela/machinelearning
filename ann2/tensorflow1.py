@@ -62,4 +62,5 @@ def main():
 			session.run(train_op)
 			print "i = %d, cost %.3f, u= %.3f" % (i, cost.eval(), u.eval())
 if __name__ == '__main__':
+
 	main()
