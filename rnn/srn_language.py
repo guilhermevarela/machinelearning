@@ -205,9 +205,12 @@ class SRN(object):
 
 def train_poetry(): 
 	sentences , word2idx = get_robert_frost()
-	srn = SRN(30, 30, len(word2idx))
-	srn.fit(sentences, learning_rate=10e-5, show_fig=True,activation=T.nnet.relu, epochs=200)
-	srn.save('RNN_D30_M30_epochs300_relu.npz')
+	D = 30 
+	M = 50
+	epochs = 500
+	srn = SRN(D, M, len(word2idx))
+	srn.fit(sentences, learning_rate=10e-5, show_fig=True,activation=T.nnet.relu, epochs=epochs)
+	srn.save('RNN_D%d_M%d_epochs%d_relu.npz' % (D, M, epochs))
 
 def generate_poetry(): 
 	sentences , word2idx = get_robert_frost() 
@@ -223,7 +226,7 @@ def generate_poetry():
 	srn.generate(pi, word2idx)
 
 if __name__ == '__main__':
-	#train_poetry()
+	train_poetry()
 	generate_poetry()
 
 

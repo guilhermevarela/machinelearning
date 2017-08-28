@@ -57,7 +57,7 @@ def get_robert_frost():
 	word2idx = {'START':0, 'END':1}
 	current_idx = 2
 	sentences = [] 
-	for line in open('../projects/robert_frost/robert_frost.txt'):
+	for line in open('../projects/poems/robert_frost.txt'):
 		line = line.strip()
 		if line: 
 			tokens = remove_puctuation(line.lower()).split()
@@ -76,6 +76,8 @@ def get_tags(s):
 	return [y for x, y in tuples]
 
 def get_poetry_classifier_data(samples_per_class, load_cached=True, saved_cached=True):	
+
+	# import code; code.interact(local=dict(globals(), **locals()))
 	datafile = 'poetry_classifier_data.npz'
 	if load_cached and os.path.exists(datafile):
 		npz = np.load(datafile)
@@ -83,3 +85,35 @@ def get_poetry_classifier_data(samples_per_class, load_cached=True, saved_cached
 		Y = npz['arr_1']
 		V = int(npz['arr_2'])
 		return X, Y, V 
+
+	word2idx = {} 
+	current_idx = 0 
+	X = [] 
+	Y = [] 
+	poem1_path = '../projects/poems/robert_frost.txt'
+	poem2_path = '../projects/poems/edgar_alan_poe.txt'
+	for fn, label in zip((poem1_path, poem2_path), (0,1)):
+		count=0
+		for line in open(fn):
+			line = line.strip()
+			if line: 
+				print line 
+				#tokens = remove_punctuation(line.lower()).split()
+				tokens = get_tags(line)
+				if len(tokens) > 1:
+					#scan doesn't work nice here, technicaly could fix
+					for token in tokens: 
+						if token not in word2idx: 
+							word2idx[token] = current_idx
+							current_idx +=1
+						sequence = np.array([word2idx[w] for w in tokens])
+						X.append(sequence)
+						Y.append(label)
+						count +=1 
+						print(count)
+						#quit early because the tokenizer	is very slow
+						if count >= samples_per_class: 
+							break 
+		if saved_cached:
+			np.savez(datafile, X, Y, current_idx)	
+		return X, Y, current_idx
