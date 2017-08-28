@@ -27,7 +27,13 @@ def get_mnist():
 	Ytest = train[-1000:,0].astype(np.int32)
 	return Xtrain, Ytrain, Xtest, Ytest
 
-	
+def error_rate(T,Y):
+	return np.mean(Y != T)
 
+def relu(A):
+	return A * (A>0) 
+	
+def init_weight(Mi, Mo):
+	return np.random.randn(Mi, Mo) / np.sqrt(Mi + Mo)
 
 
