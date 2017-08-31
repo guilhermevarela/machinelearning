@@ -25,7 +25,7 @@ class RBM(object):
 		self.id = an_id
 		self.rng = RandomStreams() 
 
-	def fit(self, X, learning_rate=0.1, epochs=10, batch_sz=100):
+	def fit(self, X, learning_rate=0.1, epochs=10, batch_sz=100, show_fig=True):
 		N, D = X.shape 
 		n_batches = N / batch_sz 
 
@@ -48,6 +48,7 @@ class RBM(object):
 		self.hidden_op = theano.function(
 			inputs=[X_in],
 			outputs=H,
+			allow_input_downcast=True,
 		)
 
 		X_hat = self.forward_output(X_in)
@@ -55,6 +56,7 @@ class RBM(object):
 		cost_op = theano.function(
 			inputs=[X_in],
 			outputs=cost,
+			allow_input_downcast=True,
 		)
 
 		H = self.sample_h_given_v(X_in) 
@@ -68,6 +70,7 @@ class RBM(object):
 		train_op = theano.function(
 			inputs=[X_in],
 			updates=updates,
+			allow_input_downcast=True,
 		)
 		costs = [] 
 		print "training rbm: %s" % self.id 
@@ -113,6 +116,7 @@ def main():
 
 
 if __name__ == '__main__': 
+	theano.config.floatX= 'float32'
 	main() 	
 
 

@@ -132,42 +132,42 @@ class DNN(object):
 		for ae in self.hidden_layers:
 			self.dparams += ae.forward_dparams
 
-			X_in = T.matrix('X_in')
-			targets = T.ivector('Targets')
-			pY = self.forward(X_in)
+		X_in = T.matrix('X_in')
+		targets = T.ivector('Targets')
+		pY = self.forward(X_in)
 
-			# squared_magnitude = [(p*p) for p in self.params] 
-			# reg_cost= T.sum(squared_magnitude)
-			cost = -T.mean(T.log(pY[T.arange(pY.shape[0]), targets])) #+ reg_cost 
-			prediction = self.predict(X_in)
-			cost_predict_op = theano.function(
-				inputs=[X_in, targets],
-				outputs=[cost,prediction]
-			) 
-			updates= [
-				(p, p + mu*dp - learning_rate*T.grad(cost,p)) for p, dp in zip(self.params, self.dparams)
-			] + [
-				(dp, mu*dp - learning_rate*T.grad(cost,p)) for p, dp in zip(self.params, self.dparams)
-			]
+		# squared_magnitude = [(p*p) for p in self.params] 
+		# reg_cost= T.sum(squared_magnitude)
+		cost = -T.mean(T.log(pY[T.arange(pY.shape[0]), targets])) #+ reg_cost 
+		prediction = self.predict(X_in)
+		cost_predict_op = theano.function(
+			inputs=[X_in, targets],
+			outputs=[cost,prediction]
+		) 
+		updates= [
+			(p, p + mu*dp - learning_rate*T.grad(cost,p)) for p, dp in zip(self.params, self.dparams)
+		] + [
+			(dp, mu*dp - learning_rate*T.grad(cost,p)) for p, dp in zip(self.params, self.dparams)
+		]
 
-			train_op = theano.function(
-				inputs=[X_in,targets],
-				updates=updates,
-			) 
-			n_batches = N / batch_sz
-			costs=[]
-			print 'supervised training'
-			for i in xrange(epochs):
-				print "epoch:", i
-				X, Y = shuffle(X, Y) 
-				for j in xrange(n_batches):
-					Xbatch =X[j*batch_sz:(j+1)*batch_sz]
-					Ybatch =Y[j*batch_sz:(j+1)*batch_sz]
-					train_op(Xbatch, Ybatch)
-					the_cost, the_prediction = cost_predict_op(Xtest, Ytest) 
-					error = error_rate(the_prediction, Ytest)
-					print "i:%d\tj:%d\tnb:%d\tcost:%.6f\terror:%.3f\t" % (i,j,n_batches,the_cost, error)
-					costs.append(the_cost)
+		train_op = theano.function(
+			inputs=[X_in,targets],
+			updates=updates,
+		) 
+		n_batches = N / batch_sz
+		costs=[]
+		print 'supervised training'
+		for i in xrange(epochs):
+			print "epoch:", i
+			X, Y = shuffle(X, Y) 
+			for j in xrange(n_batches):
+				Xbatch =X[j*batch_sz:(j+1)*batch_sz]
+				Ybatch =Y[j*batch_sz:(j+1)*batch_sz]
+				train_op(Xbatch, Ybatch)
+				the_cost, the_prediction = cost_predict_op(Xtest, Ytest) 
+				error = error_rate(the_prediction, Ytest)
+				print "i:%d\tj:%d\tnb:%d\tcost:%.6f\terror:%.3f\t" % (i,j,n_batches,the_cost, error)
+				costs.append(the_cost)
 
 		if show_fig:
 			plt.plot(costs)
