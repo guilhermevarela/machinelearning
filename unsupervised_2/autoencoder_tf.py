@@ -93,7 +93,7 @@ class AutoEncoder(object):
 		return tf.nn.sigmoid(self.forward_logits(X))
 
 
-class DnnTensorflow(object):			
+class DNN(object):			
 	def __init__(self, D, hidden_layer_sizes, K, UnsupervisedModel=AutoEncoder):
 		self.hidden_layers = [] 
 		count= 0
@@ -186,7 +186,7 @@ def test_pretraining_dnn():
 	Xtest  = Xtest.astype(np.float32)
 	_,D = Xtrain.shape 
 	K = len(set(Ytrain))
-	dnn = DnnTensorflow(D,[1000, 750, 500],K)
+	dnn = DNN(D,[1000, 750, 500],K)
 	init_op = tf.global_variables_initializer() 
 	with tf.Session() as session: 
 		session.run(init_op) 
