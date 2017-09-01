@@ -27,6 +27,7 @@ def get_mnist():
 	Ytest = train[-1000:,0].astype(np.int32)
 	return Xtrain, Ytrain, Xtest, Ytest
 
+
 def error_rate(T,Y):
 	return np.mean(Y != T)
 
@@ -36,4 +37,19 @@ def relu(A):
 def init_weight(Mi, Mo):
 	return np.random.randn(Mi, Mo) / np.sqrt(Mi + Mo)
 
+
+
+def get_book_titles():
+	titles = [line.rstrip() for line in open('../projects/book_titles/all_book_titles.txt')]
+	return titles
+
+def get_stopwords(): 
+	stopwords = set(line.rstrip() for line in open('../projects/book_titles/stopwords.txt'))
+	stopwords = stopwords.union({
+    'introduction', 'edition', 'series', 'application',
+    'approach', 'card', 'access', 'package', 'plus', 'etext',
+    'brief', 'vol', 'fundamental', 'guide', 'essential', 'printed',
+		'third', 'second', 'fourth', })
+
+	return stopwords
 
