@@ -32,6 +32,7 @@ class RRNN(object):
 		We = init_weight(V,D) # Word embeddings
 		Wx = init_weight(D,M) # Entry layer-x
 		Wh = init_weight(M,M) # h-to-h layer
+		bh = np.zeros(M)
 
 		Wxz = init_weight(D,M) 
 		Whz = init_weight(M,M) 
@@ -41,7 +42,7 @@ class RRNN(object):
 		Wo = init_weight(M,V)
 		bo = np.zeros(V)
 
-		thX, ThY, py_x, prediction = self.set(We, Wx, Wh, bh, h0, Wxz, Whz, bz, Wo, bo, activation)
+		thX, thY, py_x, prediction = self.set(We, Wx, Wh, bh, h0, Wxz, Whz, bz, Wo, bo, activation)
 
 		cost = -T.mean(T.log(py_x[T.arange(thY.shape[0]), thY]))
 		grads = T.grad(cost, self.params)
@@ -71,8 +72,8 @@ class RRNN(object):
 					input_sequence= [0] + X[j]
 					output_sequence= X[j] + [1]
 				else: 
-						input_sequence= [0] + X[j][:-1]
-						output_sequence= X[j] + [1]
+					input_sequence= [0] + X[j][:-1]
+					output_sequence= X[j]
 				n_total += len(output_sequence)		
 				c, p = self.train_op(input_sequence, output_sequence)
 				cost += c 
@@ -115,9 +116,9 @@ class RRNN(object):
 		thY = T.ivector('Y')
 
 		def recurrence(x_t, h_t1): 
-			# returns h(t), y(t)
-			hhat_t = self.f(x_t.dot(self.Wx) + h_t1.dot(self.Wh) + self.bh)
-			z_t = T.nnet.sigmoid(xt_t.dot(self.Wxz) +  h_t1.dot(self.Whz) ) 
+			# returns h(t), y(t)			
+			hhat_t = self.f(x_t.dot(self.Wx) + h_t1.dot(self.Wh) + self.bh)			
+			z_t = T.nnet.sigmoid(x_t.dot(self.Wxz) +  h_t1.dot(self.Whz) + self.bz) 			
 			h_t = (1-z_t) * h_t1 + z_t * hhat_t
 			y_t = T.nnet.softmax(h_t.dot(self.Wo) + self.bo)
 			return h_t, y_t 
@@ -205,7 +206,7 @@ def generate_poetry():
 
 	rrnn.generate(word2idx)
 
-if __name__ == '__main__':
+if __name__ == '__main__':	
 	train_poetry()
 	generate_poetry()
 
