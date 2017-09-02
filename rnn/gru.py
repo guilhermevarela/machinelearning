@@ -10,9 +10,6 @@ motivation: implementation of GRU unit
 import theano 
 import theano.tensor as T 
 import numpy as np 
-import matplotlib.pyplot as plt 
-
-from sklearn.utils import shuffle 
 from util import init_weight
 
 class GRU(object): 
