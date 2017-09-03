@@ -122,7 +122,7 @@ class RNN(object):
 					sys.stdout.write('J/N: %d/%d correct rate so far: %f\r' % (j,N, float(n_correct)/n_total ))
 					sys.stdout.flush()
 			
-			print "i:%d\tcost:%d\tcorrect rate:%.4f\ttime for the epoch:%s" % (i, cost, float(n_correct) / n_total, datatime.now() - t0)
+			print "i:%d\tcost:%d\tcorrect rate:%.4f\ttime for the epoch:%s" % (i, cost, float(n_correct) / n_total, datetime.now() - t0)
 			costs.append(cost)
 			rates.append(float(n_correct) / n_total)
 		if show_fig:
