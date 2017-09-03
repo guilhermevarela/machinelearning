@@ -9,6 +9,7 @@ motivation: Brown
 from nltk.corpus import brown 
 import operator
 
+# we absolutely want to keep these words in order to make comparisons
 KEEP_WORDS = set([
 	'king', 'man', 'queen', 'woman',
 	'italy', 'rome', 'france', 'paris',
@@ -21,7 +22,7 @@ def get_sentences():
 	return brown.sents() 
 
 def get_sentences_with_word2idx(): 
-	# Returns sentences as indexes of words, word2idx mapping
+	# Returns sentences as indexes of words and word2idx mapping
 	sentences= get_sentences()
 	indexed_sentences= [] 
 
@@ -42,6 +43,8 @@ def get_sentences_with_word2idx():
 	return indexed_sentences, word2idx
 
 def get_sentences_with_word2idx_limit_vocab(n_vocab=2000, keep_words=KEEP_WORDS):
+	# Returns sentences as indexes of words and word2idx mapping
+	# but limits to n_vocab and forces to keep WORDS
 	sentences = get_sentences() 
 	indexed_sentences= [] 
 
@@ -55,6 +58,8 @@ def get_sentences_with_word2idx_limit_vocab(n_vocab=2000, keep_words=KEEP_WORDS)
 	}
 	for sentence  in sentences: 
 		indexed_sentences= [] 
+		# This loop converts words to index and 
+		# it fills the word2idx dictionary
 		for token in sentence: 
 			token= token.lower()
 			if token not in word2idx: 
@@ -75,7 +80,9 @@ def get_sentences_with_word2idx_limit_vocab(n_vocab=2000, keep_words=KEEP_WORDS)
 		for word in keep_words: 
 			word_idx_count[word2idx[word]] = float('inf')
 
-		sorted_word_idx_count =sorted(word_idx_count.items(), key=operator.itemgetter)
+		#remapping to new smaller vocabulary words
+		#updates the dictionary	
+		sorted_word_idx_count =sorted(word_idx_count.items(), key=operator.itemgetter(1), reverse=True)
 		word2idx_small = {}
 		new_idx =0 
 		idx_new_idx_map= {} 

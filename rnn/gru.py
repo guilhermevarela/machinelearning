@@ -30,6 +30,7 @@ class GRU(object):
 		Whh = init_weight(Mo, Mo)
 		bh 	= np.zeros(Mo)
 		b0  = np.zeros(Mo)
+		h0  = np.zeros(Mo)
 
 		self.Wxr 	= theano.shared(Wxr)
 		self.Whr 	= theano.shared(Whr)
@@ -43,8 +44,9 @@ class GRU(object):
 		self.Whh = theano.shared(Whh)
 		self.bh  = theano.shared(bh)
 		self.b0  = theano.shared(b0)
+		self.h0  = theano.shared(h0)
 
-		self.params = [self.Wxr, self.Whr, self.br, self.Wxz, self.Whz, self.bz, self.Wxh, self.Whh, self.bh, self.b0] 
+		self.params = [self.Wxr, self.Whr, self.br, self.Wxz, self.Whz, self.bz, self.Wxh, self.Whh, self.bh, self.b0, self.h0] 
 
 	def recurrence(self, x_t, h_t1): 
 		r = T.nnet.sigmoid(x_t.dot(self.Wxr) + h_t1.dot(self.Whr) + self.br)	
