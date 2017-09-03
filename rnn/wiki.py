@@ -19,7 +19,7 @@ from sklearn.utils import shuffle
 from gru import GRU 
 from lstm import LSTM 
 from util import init_weight, get_wikipedia_data 
-
+from brown import get_sentences_with_word2idx_limit_vocab 
 
 class RNN(object): 
 	def __init__(self, D, hidden_layer_sizes, V):
@@ -34,10 +34,7 @@ class RNN(object):
 		V = self.V 
 		N = len(X)
 
-		We = init_weight(V, D)
-		Wo = init_weight(Mi, V) 
-		bo = np.zeros(V)
-
+		We = init_weight(V, D)		
 		self.hidden_layers = [] 
 		Mi=D 
 		for Mo in self.hidden_layer_sizes: 
@@ -45,6 +42,8 @@ class RNN(object):
 			self.hidden_layers.append(ru)
 			Mi= Mo 
 
+		Wo = init_weight(Mi, V) 
+		bo = np.zeros(V)
 
 		self.We = theano.shared(We)
 		self.Wo = theano.shared(Wo)
@@ -74,7 +73,7 @@ class RNN(object):
 
 		dWe= theano.shared(self.We.get_value()*0)
 		gWe= T.grad(cost, self.We)
-		dWe_update= mu*We - learning_rate*We 
+		dWe_update= mu*We - learning_rate*gWe 
 		We_update= self.We + dWe_update 
 		if normalize:
 			We_update /= We_update.norm(2)
@@ -82,10 +81,12 @@ class RNN(object):
 		updates=[
 			(p, p + mu*dp -learning_rate*g) for p, dp, g in zip(self.params, dparams, grads)					
 		] + [
-			(dp, mu*dp - learning_rate*g) for dp, g in zip(self.params, dparams)			
+			(dp, mu*dp - learning_rate*g) for dp, g in zip(dparams, grads)			
 		] + [
 			(self.We, We_update), (dWe, dWe_update)
 		]
+
+
 
 		self.train_op = theano.function(
 			inputs=[thX, thY],
@@ -96,7 +97,7 @@ class RNN(object):
 		costs=[]
 		rates=[] 
 		for i in xrange(epochs):
-			t0 = datatime.now() 
+			t0 = datetime.now() 
 			X= shuffle(X)
 			n_correct= 0 
 			n_total= 0 
@@ -130,7 +131,10 @@ class RNN(object):
 
 
 def train_wikipedia(we_file='word_embeddings.npy', w2i_file='wikipedia_word2idx.json', RecurrentUnit=GRU):
-	sentences, word2idx= get_wikipedia_data(n_files=100, n_vocab=2000)
+	#WIKIPEDIA
+	# sentences, word2idx= get_wikipedia_data(n_files=100, n_vocab=2000)
+	# vs BROWN
+	sentences, word2idx = get_sentences_with_word2idx_limit_vocab(n_vocab=2000)
 	print "finished retrieving data"
 	print "vocab size:", len(word2idx), "number of sentences:", len(sentences)
 	rnn = RNN(50,[50], len(word2idx))

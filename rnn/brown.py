@@ -57,7 +57,7 @@ def get_sentences_with_word2idx_limit_vocab(n_vocab=2000, keep_words=KEEP_WORDS)
 		1: float('inf'),
 	}
 	for sentence  in sentences: 
-		indexed_sentences= [] 
+		indexed_sentence= [] 
 		# This loop converts words to index and 
 		# it fills the word2idx dictionary
 		for token in sentence: 
@@ -77,41 +77,42 @@ def get_sentences_with_word2idx_limit_vocab(n_vocab=2000, keep_words=KEEP_WORDS)
 		#restrict vocab size
 		#set all the words I want to keep to infinity
 		# so that they are included when I pick the most common words
-		for word in keep_words: 
+  	for word in keep_words:
 			word_idx_count[word2idx[word]] = float('inf')
 
-		#remapping to new smaller vocabulary words
-		#updates the dictionary	
-		sorted_word_idx_count =sorted(word_idx_count.items(), key=operator.itemgetter(1), reverse=True)
-		word2idx_small = {}
-		new_idx =0 
-		idx_new_idx_map= {} 
-		for idx, count in sorted_word_idx_count[:n_vocab]: 
-			word= idx2word[idx]
-			print word, count 
 
-			word2idx_small[word]= new_idx
-			idx_new_idx_map[idx]= new_idx 
-			new_idx +=1 
+	#remapping to new smaller vocabulary words
+	#updates the dictionary	
+	sorted_word_idx_count= sorted(word_idx_count.items(), key=operator.itemgetter(1), reverse=True)
+	word2idx_small = {}
+	new_idx =0 
+	idx_new_idx_map= {} 
+	for idx, count in sorted_word_idx_count[:n_vocab]: 
+		word= idx2word[idx]
+		print word, count 
 
-		# let 'unknown' be the last token
-		word2idx_small['UNKNOWN']= new_idx 
-		unknown= new_idx 
+		word2idx_small[word]= new_idx
+		idx_new_idx_map[idx]= new_idx 
+		new_idx +=1 
 
-		# sanity check
-		assert('START' in word2idx_small)
-		assert('END' in word2idx_small)
-		for word in keep_words:
-			assert( word in word2idx_small)
+	# let 'unknown' be the last token
+	word2idx_small['UNKNOWN']= new_idx 
+	unknown= new_idx 
 
-		#map old idx to new idx
-		sentences_small = [] 
-		for sentence in indexed_sentences: 
-			if len(sentence) > 1:
-				new_sentence = [idx_new_idx_map[idx] if idx in idx_new_idx_map else unknown] 
-				sentences_small.append(new_sentence)
+	# sanity check
+	assert('START' in word2idx_small)
+	assert('END' in word2idx_small)
+	for word in keep_words:
+		assert( word in word2idx_small)
 
-		return sentences_small
+	#map old idx to new idx
+	sentences_small = [] 
+	for sentence in indexed_sentences: 
+		if len(sentence) > 1:
+			new_sentence = [idx_new_idx_map[idx] if idx in idx_new_idx_map else unknown] 
+			sentences_small.append(new_sentence)
+
+	return sentences_small, word2idx_small 
 
 
 
