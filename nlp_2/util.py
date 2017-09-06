@@ -101,7 +101,7 @@ def get_sentences_with_word2idx_limit_vocab(n_vocab=2000, keep_words=KEEP_WORDS)
 	sentences_small = [] 
 	for sentence in indexed_sentences: 
 		if len(sentence) > 1:
-			new_sentence = [idx_new_idx_map[idx] if idx in idx_new_idx_map else unknown] 
+			new_sentence = [idx_new_idx_map[idx] if idx in idx_new_idx_map else unknown for idx in sentence] 
 			sentences_small.append(new_sentence)
 
 	return sentences_small, word2idx_small  
