@@ -33,7 +33,7 @@ def main():
 
 
 	max_iter = 20
-	print_period = 100 
+	print_period = 10 
 	lr = 0.00004
 	reg =  0.01 
 
@@ -80,33 +80,60 @@ def main():
 			for j in range(n_batches):				
 				# import code; code.interact(local=dict(globals(), **locals()))
 				sb = sentences[j*batch_sz:((j+1)*batch_sz)]
-				sb = [item for sublist in sb for item in sublist]
-				Xbatch = [0] + sb
-				Ybatch = sb + [1]
-				n_words_in_batch=len(Xbatch)
-				for k in range(n_words_in_batch):
-					Xind[Xbatch[k]]=1 
-					Yind[Ybatch[k]]=1 
+				# sb = [item for sublist in sb for item in sublist]
+				# Xbatch = [0] + sb
+				# Ybatch = sb + [1]
+				# n_words_in_batch=len(Xbatch)
+				X_ind, Y_ind=sentences2mtrix(sentences, N+1)
+				# for k in range(n_words_in_batch):
+					# Xind[Xbatch[k]]=1 
+					# Yind[Ybatch[k]]=1 
 
-					session.run(train_op,
-						feed_dict={
-							X: Xind,
-							T: Yind,
-						})
+				session.run(train_op,
+					feed_dict={
+						X: X_ind,
+						T: Y_ind,
+					})
 
-					if j % print_period == 0:
-						test_cost = session.run(cost, feed_dict={X: Xind, T: Yind})
+				if j % print_period == 0:
+					test_cost = session.run(cost, feed_dict={X: X_ind, T: Y_ind})
 						# prediction_val = session.run(predict_op, feed_dict={X: Xtest})
 
 						# err = error_rate(prediction_val, Ytest)
 						# print("Cost at iteration i=%d, j=%d: %.3f / %.3f" % (i, j, test_cost, err))
-						print("Cost at iteration i=%d, j=%d: %.3f" % (i, j, test_cost))
-						LL.append(test_cost)
-					Xind[Xbatch[k]]=0 
-					Yind[Ybatch[k]]=0	
+					print("Cost at iteration i=%d, j=%d: %.3f" % (i, j, test_cost))
+					LL.append(test_cost)
 
 	plt.plot(LL)
 	plt.show()
+
+def sentences2mtrix(sentences, V):
+	'''
+		INPUT
+			sentences<list<lists>>: list of lists of integer indexes
+				expected to be a batch from indexes
+
+		OUTPUT
+			X[M,V] one-hot encoding for sentences
+					M: examples, V: vocabulary size
+
+			Y[M,V] one-hot encoding for output sentences
+					M: examples, V: vocabulary size
+
+	'''
+	xidx = [item for sublist in sentences for item in ([0]+sublist)]
+	yidx = [item for sublist in sentences for item in (sublist+[1])]
+
+	M=len(xidx)
+
+	index=np.arange(M)
+	X=np.zeros((M,V), dtype=np.int32)
+	Y=np.zeros((M,V), dtype=np.int32)
+
+	X[index,np.array(xidx)]=1
+	Y[index,np.array(yidx)]=1
+
+	return X, Y
 
 if __name__ == '__main__':
 	main()
