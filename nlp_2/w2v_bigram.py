@@ -49,8 +49,8 @@ def main():
 	
 
 
-	X = tf.placeholder(tf.float32, shape=(N+1,1), name='X')
-	T = tf.placeholder(tf.float32, shape=(N+1,1), name='T')
+	X = tf.placeholder(tf.float32, shape=(None, N+1), name='X')
+	T = tf.placeholder(tf.float32, shape=(None, N+1), name='T')
 
 
 
@@ -97,11 +97,11 @@ def main():
 
 				if j % print_period == 0:
 					test_cost = session.run(cost, feed_dict={X: X_ind, T: Y_ind})
-						# prediction_val = session.run(predict_op, feed_dict={X: Xtest})
+					prediction_val = session.run(predict_op, feed_dict={X: X_ind})
 
-						# err = error_rate(prediction_val, Ytest)
-						# print("Cost at iteration i=%d, j=%d: %.3f / %.3f" % (i, j, test_cost, err))
-					print("Cost at iteration i=%d, j=%d: %.3f" % (i, j, test_cost))
+					err = error_rate(prediction_val, Ytest)
+					print("Cost at iteration i=%d, j=%d: %.3f / %.3f" % (i, j, test_cost, err))
+					# print("Cost at iteration i=%d, j=%d: %.3f" % (i, j, test_cost))
 					LL.append(test_cost)
 
 	plt.plot(LL)
