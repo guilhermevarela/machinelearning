@@ -50,7 +50,8 @@ def all_parity_pairs_with_sequence_labels(nbit):
 	return X, Y_t
 	
 def remove_puctuation(s):
-	return 	s.translate(None, string.punctuation)
+	return 	s.translate(str.maketrans('','', string.punctuation))
+	# return 	s.translate(None, string.punctuation)
 
 
 def get_robert_frost():
@@ -97,7 +98,7 @@ def get_poetry_classifier_data(samples_per_class, load_cached=True, saved_cached
 		for line in open(fn):
 			line = line.strip()
 			if line: 
-				print line 
+				print(line )
 				#tokens = remove_punctuation(line.lower()).split()
 				tokens = get_tags(line)
 				if len(tokens) > 1:
@@ -142,7 +143,7 @@ def get_wikipedia_data(n_files, n_vocab, by_paragraph=False):
 		input_files = input_files[:n_files]
 
 	for f in input_files:
-		print 'reading:',f 
+		print('reading:',f) 
 		for line in open(prefix + f): 
 			line = line.strip()
 			#don't count headers, structured data, lists, etc ...
@@ -172,7 +173,7 @@ def get_wikipedia_data(n_files, n_vocab, by_paragraph=False):
 	idx_new_idx_map= {} 
 	for idx, count in sorted_word_idx_count[:n_vocab]: 
 		word= idx2word[idx]
-		print word, count 
+		print( word, count )
 
 		word2idx_small[word]= new_idx
 		idx_new_idx_map[idx]= new_idx 

@@ -60,7 +60,7 @@ def main():
 
 	Z = tf.matmul( W1,X ) 	
 	Yish = tf.matmul( W2,Z )
-
+	# Yish = tf.matmul( W2, tf.matmul( W1,X ) )
 	cost = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(labels=T, logits=Yish))
 
 	train_op = tf.train.RMSPropOptimizer(lr, decay=0.99, momentum=0.9).minimize(cost)
