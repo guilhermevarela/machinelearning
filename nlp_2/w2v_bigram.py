@@ -30,7 +30,7 @@ def main():
 	D =300
 
 	sentences, word2idx=get_wikipedia_data(n_files=10, n_vocab=N, by_paragraph=True)
-
+	X_list, Y_list=sentences2XY_list(sentences)
 
 	max_iter = 20
 	print_period = 10 
@@ -69,22 +69,25 @@ def main():
 	LL = [] 
 	init = tf.global_variables_initializer()
 
-	Xind = np.zeros((N+1,1), dtype=np.int32) # cononical base N
-	Yind = np.zeros((N+1,1), dtype=np.int32) # cononical base N
+	aux= np.arange(batch_sz)
+	X_ind = np.zeros((batch_sz, N+1), dtype=np.int32) # cononical base N
+	Y_ind = np.zeros((batch_sz, N+1), dtype=np.int32) # cononical base N	
 	with tf.Session() as session:
 		session.run(init)
 
 		for i in range(max_iter):
-			sentences = shuffle(sentences)
+			X_list, Y_list = shuffle(X_list, Y_list)
 			
 			for j in range(n_batches):				
+				X_ind[aux,X_list[j*batch_sz:(j+1)*batch_sz]]=1
+				Y_ind[aux,Y_list[j*batch_sz:(j+1)*batch_sz]]=1
 				# import code; code.interact(local=dict(globals(), **locals()))
-				sb = sentences[j*batch_sz:((j+1)*batch_sz)]
+				# sb = sentences[j*batch_sz:((j+1)*batch_sz)]
 				# sb = [item for sublist in sb for item in sublist]
 				# Xbatch = [0] + sb
 				# Ybatch = sb + [1]
 				# n_words_in_batch=len(Xbatch)
-				X_ind, Y_ind=sentences2mtrix(sentences, N+1)
+				# X_ind, Y_ind=sentences2mtrix(sentences, N+1)
 				# for k in range(n_words_in_batch):
 					# Xind[Xbatch[k]]=1 
 					# Yind[Ybatch[k]]=1 
@@ -103,6 +106,9 @@ def main():
 					print("Cost at iteration i=%d, j=%d: %.3f / %.3f" % (i, j, test_cost, err))
 					# print("Cost at iteration i=%d, j=%d: %.3f" % (i, j, test_cost))
 					LL.append(test_cost)
+
+				X_ind[aux,X_list[j*batch_sz:(j+1)*batch_sz]]=0
+				Y_ind[aux,Y_list[j*batch_sz:(j+1)*batch_sz]]=0
 
 	plt.plot(LL)
 	plt.show()
@@ -134,6 +140,31 @@ def sentences2mtrix(sentences, V):
 	Y[index,np.array(yidx)]=1
 
 	return X, Y
+
+def sentences2XY_list(sentences): 
+	'''
+		INPUT
+			sentences<list<lists>>: list of lists of integer indexes
+				expected to be a batch from indexes
+
+		OUTPUT
+			X_list[M,1] one-hot encoding for sentences
+					M: examples
+
+			Y_list[M,1] one-hot encoding for output sentences
+					M: examples, V: vocabulary size
+
+	'''
+	examples_list = [item for sublist in sentences for item in ([0]+sublist+[1])]
+	# import code; code.interact(local=dict(globals(), **locals()))
+
+	XX=examples_list[:-1]
+	YY=examples_list[1:]
+	
+	Z = [(x,y) for x,y in zip(XX,YY) if not(x==1) and not(y==0)]
+	X_tuple, Y_tuple = zip(*Z)
+	
+	return list(X_tuple), list(Y_tuple)
 
 if __name__ == '__main__':
 	main()

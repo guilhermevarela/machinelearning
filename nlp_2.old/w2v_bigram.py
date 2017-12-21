@@ -33,20 +33,21 @@ def remove_puctuation(s):
 	'''
 		s is a string with punctuation; converts unicode to string which might get data loss
 			url: https://stackoverflow.com/questions/23175809/typeerror-translate-takes-one-argument-2-given-python
-	'''	
-	return 	str(s).translate(None, string.punctuation)
+	'''
+	return 	s.translate(str.maketrans('', '', string.punctuation))	
+	# return 	str(s).translate(None, string.punctuation)
 
 
 def word2indexify(sentence, word2idx={}):
 	'''
 		Converts a document to a list 
-		Gets 
+		INPUT
 				sentence: i.e  the element of a document dict which is represented 
 					list of strings (tokens). Information about of start and end periods is preserved
 
 				word2idx: the previous word2idx dictionary if none exists then creates one
 
-		Returns
+		OUTPUT
 			indexed_sentences: 	a flattened list of idx representing the tokens 
 			word2idx :  				a token to index mapping 
 			
@@ -91,9 +92,11 @@ class Bigram(object):
 		costs=[] 
 		rates=[] 
 		best_classification_rate=-1
-		for i in xrange(epochs):
+		# for i in xrange(epochs):
+		for i in range(epochs):
 			X, Y = shuffle(X, Y)		
-			for j in xrange(n_batches):
+			# for j in xrange(n_batches):
+			for j in range(n_batches):
 				Xbatch = X[j*batch_sz:(j+1)*batch_sz,:]
 				Ybatch = Y[j*batch_sz:(j+1)*batch_sz,:]
 
@@ -160,7 +163,7 @@ def toy():
 		idx_sentences.append(idx_sentence)
 
 	V = len(word2idx)
-	print 'vocabulary size is '	, len(word2idx)
+	print('vocabulary size is '	, len(word2idx))
 	
 	#flattens list preserving starts & ends
 	flat_sentences=[]
@@ -174,11 +177,11 @@ def toy():
 	
 
 	
-	Z = [(x,y) for x,y in zip(XX,YY) if x>=0 and y>=1]
+	Z = [(x,y) for x,y in zip(XX,YY) if not(x==1) and not(y==0)]
 	X, Y = zip(*Z)
 	N = len(X)	
 
-	print 'number of examples is', N 
+	print('number of examples is', N )
 	
 	#converts the whole series into examples N of V size 
 	Xind = np.array(X, dtype=np.int32)
@@ -216,7 +219,7 @@ def brown():
 		idx_sentences.append(idx_sentence)
 
 	V = len(word2idx)
-	print 'vocabulary size is '	, len(word2idx)
+	print('vocabulary size is '	, len(word2idx))
 	
 	#flattens list preserving starts & ends
 	flat_sentences=[]
@@ -234,7 +237,7 @@ def brown():
 	X, Y = zip(*Z)
 	N = len(X)	
 
-	print 'number of examples is', N 
+	print('number of examples is', N )
 	
 	#converts the whole series into examples N of V size 
 	Xind = np.array(X, dtype=np.int32)
@@ -251,7 +254,7 @@ def brown():
 	
 	D= int(V/2) 
 	model= Bigram(V,D)
-	model.fit(X,Y, epochs=2000, reg=10e-5 , learning_rate=10e-4, batch_sz=100, show_fig=True)
+	model.fit(X,Y, epochs=2000, reg=10e-5 , learning_rate=5*10e-3, batch_sz=100, show_fig=True)
 
 
 
