@@ -3,7 +3,7 @@
 
 	@author: Varela
 
-	Tensorflow cbow
+	Tensorflow bigram
 
 	url: https://www.udemy.com/natural-language-processing-with-deep-learning-in-python/learn/v4/t/lecture/5505608?start=0
 
@@ -24,7 +24,7 @@ def error_rate(p, t):
 	return np.mean(p !=t )
 
 
-def main():
+def bigram():
 	n_files=10
 	N=2000
 	D =300
@@ -128,4 +128,4 @@ def sentences2XY_list(sentences):
 	return list(X_tuple), list(Y_tuple)
 
 if __name__ == '__main__':
-	main()
+	bigram()
