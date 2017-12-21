@@ -75,13 +75,14 @@ def cbow10(sentences, V, D, epochs=20, batch_sz=15000, print_period=10, lr=1e-4,
 	W1 = tf.Variable(W1_init.astype(np.float32), name='W1')
 	W2 = tf.Variable(W2_init.astype(np.float32), name='W2')
 
-	Z 	 = tf.reduce_mean( np.matmul(X, W1) ,axis=0)
-	Yish = tf.matmul(Z, W3) 
+	WW 	 = tf.stack([W1]*10)
+	Z 	 = tf.reduce_mean( tf.matmul(X, WW) ,axis=0)
+	Yish = tf.matmul(Z, W2) 
 	cost = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(labels=T, logits=Yish))
 	
-	init = tf.global_variables_initializer()
-	train_op = tf.train.RMSPropOptimizer(lr, decay=0.99, momentum=0.9).minimize(cost)
-	predict_op = tf.argmax(Yish, 1)
+	init 				= tf.global_variables_initializer()
+	train_op 		= tf.train.RMSPropOptimizer(lr, decay=0.99, momentum=0.9).minimize(cost)
+	predict_op 	= tf.argmax(Yish, 1)
 
 
 	aux0=np.arange(2*C+1)
