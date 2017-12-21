@@ -44,8 +44,8 @@ def main():
 
 	
 
-	W1_init = np.random.randn(D, N+1) / np.sqrt(D+N)
-	W2_init = np.random.randn(N+1, D) / np.sqrt(D+N)
+	W1_init = np.random.randn(N+1, D) / np.sqrt(D+N)
+	W2_init = np.random.randn(D,N+1) / np.sqrt(D+N)
 	
 
 
@@ -58,8 +58,8 @@ def main():
 	W2 = tf.Variable(W2_init.astype(np.float32), name='W2')
 	
 
-	Z = tf.matmul( W1,X ) 	
-	Yish = tf.matmul( W2,Z )
+	Z = tf.matmul( X,W1 ) 	
+	Yish = tf.matmul( Z, W2 )
 	# Yish = tf.matmul( W2, tf.matmul( W1,X ) )
 	cost = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(labels=T, logits=Yish))
 
@@ -81,16 +81,7 @@ def main():
 			for j in range(n_batches):				
 				X_ind[aux,X_list[j*batch_sz:(j+1)*batch_sz]]=1
 				Y_ind[aux,Y_list[j*batch_sz:(j+1)*batch_sz]]=1
-				# import code; code.interact(local=dict(globals(), **locals()))
-				# sb = sentences[j*batch_sz:((j+1)*batch_sz)]
-				# sb = [item for sublist in sb for item in sublist]
-				# Xbatch = [0] + sb
-				# Ybatch = sb + [1]
-				# n_words_in_batch=len(Xbatch)
-				# X_ind, Y_ind=sentences2mtrix(sentences, N+1)
-				# for k in range(n_words_in_batch):
-					# Xind[Xbatch[k]]=1 
-					# Yind[Ybatch[k]]=1 
+
 
 				session.run(train_op,
 					feed_dict={
