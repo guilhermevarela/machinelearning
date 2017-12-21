@@ -32,15 +32,15 @@ def main():
 	sentences, word2idx=get_wikipedia_data(n_files=10, n_vocab=N, by_paragraph=True)
 	X_list, Y_list=sentences2XY_list(sentences)
 
-	max_iter = 20
+	epochs = 20
 	print_period = 10 
-	lr = 0.00004
+	lr = 1e-4
 	reg =  0.01 
 
 	
 	
-	batch_sz = 500
-	n_batches =int( N / batch_sz)
+	batch_sz = 15000
+	n_batches =int( len(X_list) / batch_sz)
 
 	
 
@@ -60,7 +60,6 @@ def main():
 
 	Z = tf.matmul( X,W1 ) 	
 	Yish = tf.matmul( Z, W2 )
-	# Yish = tf.matmul( W2, tf.matmul( W1,X ) )
 	cost = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(labels=T, logits=Yish))
 
 	train_op = tf.train.RMSPropOptimizer(lr, decay=0.99, momentum=0.9).minimize(cost)
@@ -75,7 +74,7 @@ def main():
 	with tf.Session() as session:
 		session.run(init)
 
-		for i in range(max_iter):
+		for i in range(epochs):
 			X_list, Y_list = shuffle(X_list, Y_list)
 			
 			for j in range(n_batches):				
@@ -93,9 +92,8 @@ def main():
 					test_cost = session.run(cost, feed_dict={X: X_ind, T: Y_ind})
 					prediction_val = session.run(predict_op, feed_dict={X: X_ind})
 
-					err = error_rate(prediction_val, Ytest)
+					err = error_rate(prediction_val, Y_ind)
 					print("Cost at iteration i=%d, j=%d: %.3f / %.3f" % (i, j, test_cost, err))
-					# print("Cost at iteration i=%d, j=%d: %.3f" % (i, j, test_cost))
 					LL.append(test_cost)
 
 				X_ind[aux,X_list[j*batch_sz:(j+1)*batch_sz]]=0
@@ -104,33 +102,6 @@ def main():
 	plt.plot(LL)
 	plt.show()
 
-def sentences2mtrix(sentences, V):
-	'''
-		INPUT
-			sentences<list<lists>>: list of lists of integer indexes
-				expected to be a batch from indexes
-
-		OUTPUT
-			X[M,V] one-hot encoding for sentences
-					M: examples, V: vocabulary size
-
-			Y[M,V] one-hot encoding for output sentences
-					M: examples, V: vocabulary size
-
-	'''
-	xidx = [item for sublist in sentences for item in ([0]+sublist)]
-	yidx = [item for sublist in sentences for item in (sublist+[1])]
-
-	M=len(xidx)
-
-	index=np.arange(M)
-	X=np.zeros((M,V), dtype=np.int32)
-	Y=np.zeros((M,V), dtype=np.int32)
-
-	X[index,np.array(xidx)]=1
-	Y[index,np.array(yidx)]=1
-
-	return X, Y
 
 def sentences2XY_list(sentences): 
 	'''
@@ -147,7 +118,6 @@ def sentences2XY_list(sentences):
 
 	'''
 	examples_list = [item for sublist in sentences for item in ([0]+sublist+[1])]
-	# import code; code.interact(local=dict(globals(), **locals()))
 
 	XX=examples_list[:-1]
 	YY=examples_list[1:]
