@@ -22,6 +22,22 @@ from rnn.util import get_wikipedia_data
 def error_rate(p, t):
 	return np.mean(p !=t )
 
+# def get_total_examples(sentences, n):
+# 	'''
+# 		INPUT
+# 			sentences<list<lists>>: list of lists of integer indexes
+# 				expected to be a batch from indexes
+
+# 			n<int>	: context size (1-sided)
+# 	'''
+# 	c=0
+# 	for sentence in sentences:
+# 		#adding BEGIN and END
+# 		#missed examples from window		
+# 		c+=len(sentence)+2-2*n+1
+# 	return c
+
+
 def sentences2XY_list(sentences): 
 	'''
 		INPUT
@@ -46,9 +62,10 @@ def sentences2XY_list(sentences):
 	
 	return list(X_tuple), list(Y_tuple)
 
-def cbow10(sentences, V, D, epochs=20, batch_sz=15000, print_period=10, lr=1e-4, reg=0.01):
+
+def cbow01(sentences, V, D, epochs=20, batch_sz=15000, print_period=100, lr=1e-4, reg=0.01):
 	'''
-		Performs continous bag-of-words with moving context of size 10(5-left, 5-right)
+		Performs continous bag-of-words with moving context of size 1(1-left, 1-right)
 		INPUT
 			sentences
 			V <int>: Vocabulary size
@@ -62,22 +79,22 @@ def cbow10(sentences, V, D, epochs=20, batch_sz=15000, print_period=10, lr=1e-4,
 		OUTPUT
 	'''
 	X_list, Y_list=sentences2XY_list(sentences)		
-	C=5
-	n_batches =int((len(X_list)-2*C) / batch_sz)
-	print('total words:%d\tvocabulary size:%d\tbatches:%d' % (len(X_list), V, n_batches))
+	C=1
+	M=(len(X_list)-(2*C+1))
+	n_batches =int(M / batch_sz)
+	print('total number of examples: total words:%d\tvocabulary size:%d\tbatches:%d' % (len(X_list), V, n_batches))
 
 	W1_init = np.random.randn(V+1,D) / np.sqrt(D+V+1)	
-	W2_init = np.random.randn(D,V+1) / np.sqrt(D+V+1)	
+	W2_init = np.random.randn(V+1,D) / np.sqrt(D+V+1)	
 
-	X = tf.placeholder(tf.float32, shape=(2*C, batch_sz, V+1), name='X')
-	T = tf.placeholder(tf.float32, shape=(batch_sz, V+1), name='T')
+	X = tf.placeholder(tf.float32, shape=(None, V+1), name='X')
+	T = tf.placeholder(tf.float32, shape=(V+1,1), name='T')
 
 	W1 = tf.Variable(W1_init.astype(np.float32), name='W1')
 	W2 = tf.Variable(W2_init.astype(np.float32), name='W2')
 
-	WW 	 = tf.stack([W1]*10)
-	Z 	 = tf.reduce_mean( tf.matmul(X, WW) ,axis=0)
-	Yish = tf.matmul(Z, W2) 
+	Z 	 = tf.reduce_mean( tf.matmul(X, W1) , axis=0)
+	Yish = tf.matmul(W2,Z) 
 	cost = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(labels=T, logits=Yish))
 	
 	init 				= tf.global_variables_initializer()
@@ -85,21 +102,22 @@ def cbow10(sentences, V, D, epochs=20, batch_sz=15000, print_period=10, lr=1e-4,
 	predict_op 	= tf.argmax(Yish, 1)
 
 
-	aux0=np.arange(2*C+1)
-	aux1=np.arange(batch_sz)
-	X_ind= np.zeros((2*C+1, batch_sz, V), dtype=np.int32)
-	Y_ind= np.zeros((batch_sz), dtype=np.int32)
+	
+	aux0= np.arange(2*C+1)
+	X_ind= np.zeros((2*C+1, V+1), dtype=np.int32)
+	Y_ind= np.zeros((V+1,1), dtype=np.int32)
 	with tf.Session() as session:
 		session.run(init)
 
 		for i in range(epochs):
-			X_list, Y_list= shuffle(X_list, Y_list)
+			# X_list, Y_list= shuffle(X_list, Y_list)
 
-			for j in range(n_batches):
-				auxx = X_list[j*batch_sz:(j+1)*batch_sz+(2*C+1)]
-				auxy = Y_list[j*batch_sz+C:(j+1)*batch_sz+C]
-				X_ind[aux0, aux1, auxx]=1
-				Y_ind[aux1, auxy]=1
+			for j in range(M):
+				auxx = X_list[j*(2*C+1):(j+1)*(2*C+1)]
+				auxy = Y_list[j+C]
+				# import code; code.interact(local=dict(globals(), **locals()))
+				X_ind[aux0, auxx]=1
+				Y_ind[auxy,0]=1
 				
 				session.run(train_op,
 					feed_dict={
@@ -128,4 +146,4 @@ if __name__=='__main__':
 	V=2000
 	D=200
 	sentences, word2idx=get_wikipedia_data(n_files=n_files, n_vocab=V, by_paragraph=True)
-	cbow10(sentences, V, D)
+	cbow01(sentences, V, D)
