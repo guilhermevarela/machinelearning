@@ -140,4 +140,7 @@ with tf.Session() as session:
 	print(MM)
 	print(MM.shape)
 
-
+	print("reduce_mean_operation")
+	H= session.run(tf.reduce_mean(MM, axis=1))
+	print(H)
+	print(H.shape)
