@@ -29,7 +29,10 @@ def ts(a,b):
 	return (b, tf.log(b/a[0]))
 
 def matmul(M, a, b):
-	return tf.matmul(M, tf.transpose(b))
+	N=M.shape[1]
+	b2=tf.reshape(b,[N,1])
+	result=tf.matmul(M, b2)
+	return result
 
 N=10
 X_init=np.arange(N)
@@ -129,10 +132,12 @@ with tf.Session() as session:
 	print(T)
 
 	print("matmul_operation")
-	X_init=np.eye(N)
-	M= session.run(matmul_op, feed_dict={Z: np.eye(N)})
+	X_init=np.eye(N, dtype=np.int32)
+	MM= session.run(matmul_op, feed_dict={Z: X_init})
 
 	print(X_init)
-	print(T)
+	print(M)
+	print(MM)
+	print(MM.shape)
 
 
