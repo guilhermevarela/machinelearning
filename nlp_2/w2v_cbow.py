@@ -45,7 +45,7 @@ def sentences2XY_batch(X_batch, Y_batch, sentences, j):
 		if stop:
 			break	
 
-	return X_batch, Y_batch, jj, stop 
+	return X_batch, Y_batch, jj
 
 def cbow():
 	n_files=10
@@ -104,23 +104,22 @@ def cbow():
 
 			sc=0
 			for j in range(n_batches):				
-				X_ind, Y_ind, sc, process= sentences2XY_batch(X_ind, Y_ind, sentences, sc)
+				X_ind, Y_ind, sc= sentences2XY_batch(X_ind, Y_ind, sentences, sc)
 				
 				#takes at least batch_sz examples to run
-				if process:
-					session.run(train_op,
-						feed_dict={
-							X: X_ind,
-							T: Y_ind,
-						})
+				session.run(train_op,
+					feed_dict={
+						X: X_ind,
+						T: Y_ind,
+					})
 
-					if j % print_period == 0:
-						test_cost = session.run(cost, feed_dict={X: X_ind, T: Y_ind})
-						prediction_val = session.run(predict_op, feed_dict={X: X_ind})
+				if j % print_period == 0:
+					test_cost = session.run(cost, feed_dict={X: X_ind, T: Y_ind})
+					prediction_val = session.run(predict_op, feed_dict={X: X_ind})
 
-						err = error_rate(prediction_val, Y_ind)
-						print("Cost at iteration i=%d, j=%d: %.3f / %.3f" % (i, j, test_cost, err))
-						LL.append(test_cost)
+					err = error_rate(prediction_val, Y_ind)
+					print("Cost at iteration i=%d, j=%d: %.3f / %.3f" % (i, j, test_cost, err))
+					LL.append(test_cost)
 
 				X_ind[X_ind]=0
 				Y_ind[Y_ind]=0
