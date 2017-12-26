@@ -39,10 +39,10 @@ X_init=np.arange(N)
 X=tf.placeholder(tf.int32, shape=(N,), name='X')
 V=tf.placeholder(tf.float32, shape=(N,), name='V')
 Z=tf.placeholder(tf.int32, shape=(N,N), name='Z')
+W=tf.placeholder(tf.int32, shape=(None,N,N), name='W')
+
 
 Y=tf.Variable(X_init.astype(np.int32), name='Y') 
-
-
 
 square_op=tf.scan(
 	fn=square,
@@ -81,7 +81,6 @@ ts_op=tf.scan(
 )
 
 M= np.tile(np.arange(N), (N,1)).astype(np.int32)
-
 fn_matmul=lambda x,y : matmul(M,x,y)
 matmul_op=tf.scan(
 	fn=fn_matmul,
@@ -89,6 +88,9 @@ matmul_op=tf.scan(
 	initializer=np.zeros((N,1),dtype=np.int32),
 	name='matmul_operation'
 )
+
+
+
 
 
 
@@ -132,6 +134,7 @@ with tf.Session() as session:
 	print(T)
 
 	print("matmul_operation")
+	
 	X_init=np.eye(N, dtype=np.int32)
 	MM= session.run(matmul_op, feed_dict={Z: X_init})
 
@@ -144,3 +147,5 @@ with tf.Session() as session:
 	H= session.run(tf.reduce_mean(MM, axis=1))
 	print(H)
 	print(H.shape)
+
+

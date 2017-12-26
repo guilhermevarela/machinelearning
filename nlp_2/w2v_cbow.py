@@ -3,7 +3,7 @@
 
 	@author: Varela
 
-	Tensorflow bigram
+	Tensorflow eazy cbow
 
 	url: https://www.udemy.com/natural-language-processing-with-deep-learning-in-python/learn/v4/t/lecture/5505608?start=0
 
@@ -29,24 +29,24 @@ def sentences2XY_batch(X_batch, Y_batch, sentences, j):
 	batch_n=0	
 	batch_sz, C, V= X_batch.shape	
 	d=int((C-1)/2)
-	# import code; code.interact(local=dict(globals(), **locals()))
+	
+	aux1= np.arange(C)
 	for jj in range(j, len(sentences)):
 		sentence=[0]+sentences[jj]+[1]
 		n_examples= len(sentence)-C+1
 		for n in range(n_examples):
-			batch_n+=1
-			if (batch_n <= batch_sz):
-				X_batch[batch_n, :, sentence[n:n+C+1]]=1
-				Y_batch[batch_n, :, n+d]=1
+			if (batch_n < batch_sz):				
+				X_batch[batch_n, aux1, sentence[n:n+C]]=1
+				Y_batch[batch_n, n+d]=1
 			else:
 				stop=True
 				break
-		break	
+			batch_n+=1
+		if stop:
+			break	
 
-	if 	(batch_n < batch_sz):
-		X_batch=X_batch[:batch_n,:]
+	return X_batch, Y_batch, jj, stop 
 
-	return X_batch, Y_batch, jj
 def cbow():
 	n_files=10
 	V=2000
@@ -81,10 +81,11 @@ def cbow():
 	W2 = tf.Variable(W2_init.astype(np.float32), name='W2')
 	
 
-	WW= tf.reshape(tf.tile(W1, multiples=batch_sz), shape=((batch_sz, V+1, D)))
-	Z= tf.matmul( X,WW, name='Z' ) 	
+	X_2d= tf.reshape(X, [-1, V+1])
+	Z_2d= tf.matmul( X_2d, W1, name='Z_2d') 	
+	Z= tf.reshape(Z_2d, [-1, C, D])
 	H= tf.reduce_mean(Z, axis=1, name='H')
-	Yish= tf.matmul( Z, W2 )
+	Yish= tf.matmul( H, W2 )
 	cost= tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(labels=T, logits=Yish))
 
 	train_op= tf.train.RMSPropOptimizer(lr, decay=0.99, momentum=0.9).minimize(cost)
@@ -94,33 +95,32 @@ def cbow():
 	init= tf.global_variables_initializer()
 
 	X_ind= np.zeros((batch_sz, C,V+1), dtype=np.int32) # batch
-	Y_ind= np.zeros((batch_sz, C,V+1), dtype=np.int32) # batch 
+	Y_ind= np.zeros((batch_sz, V+1), dtype=np.int32) # batch 
 	with tf.Session() as session:
 		session.run(init)
 
-
 		for i in range(epochs):
 			sentences= shuffle(sentences)
-			# X_list= sentences2X_list(sentences)
 
 			sc=0
 			for j in range(n_batches):				
-				X_ind, Y_ind, sc= sentences2XY_batch(X_ind, Y_ind, sentences, sc)
+				X_ind, Y_ind, sc, process= sentences2XY_batch(X_ind, Y_ind, sentences, sc)
 				
-				# import code; code.interact(local=dict(globals(), **locals()))				
-				session.run(train_op,
-					feed_dict={
-						X: X_ind,
-						T: Y_ind,
-					})
+				#takes at least batch_sz examples to run
+				if process:
+					session.run(train_op,
+						feed_dict={
+							X: X_ind,
+							T: Y_ind,
+						})
 
-				if j % print_period == 0:
-					test_cost = session.run(cost, feed_dict={X: X_ind, T: Y_ind})
-					prediction_val = session.run(predict_op, feed_dict={X: X_ind})
+					if j % print_period == 0:
+						test_cost = session.run(cost, feed_dict={X: X_ind, T: Y_ind})
+						prediction_val = session.run(predict_op, feed_dict={X: X_ind})
 
-					err = error_rate(prediction_val, Y_ind)
-					print("Cost at iteration i=%d, j=%d: %.3f / %.3f" % (i, j, test_cost, err))
-					LL.append(test_cost)
+						err = error_rate(prediction_val, Y_ind)
+						print("Cost at iteration i=%d, j=%d: %.3f / %.3f" % (i, j, test_cost, err))
+						LL.append(test_cost)
 
 				X_ind[X_ind]=0
 				Y_ind[Y_ind]=0
