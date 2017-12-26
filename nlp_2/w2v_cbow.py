@@ -51,8 +51,8 @@ def cbow():
 	n_files=10
 	V=2000
 	D=300
-	C=3
-	batch_sz = 500
+	C=5
+	batch_sz = 1500
 
 	sentences, word2idx=get_wikipedia_data(n_files=n_files, n_vocab=V, by_paragraph=True)
 	epochs = 20
@@ -68,7 +68,7 @@ def cbow():
 	
 
 	W1_init = np.random.randn(V+1, D) / np.sqrt(D+V)
-	W2_init = np.random.randn(D,V+1) / np.sqrt(D+V)
+	# W2_init = np.random.randn(D,V+1) / np.sqrt(D+V)
 	
 
 
@@ -78,14 +78,14 @@ def cbow():
 
 
 	W1 = tf.Variable(W1_init.astype(np.float32), name='W1')
-	W2 = tf.Variable(W2_init.astype(np.float32), name='W2')
+	# W2 = tf.Variable(W2_init.astype(np.float32), name='W2')
 	
 
 	X_2d= tf.reshape(X, [-1, V+1])
 	Z_2d= tf.matmul( X_2d, W1, name='Z_2d') 	
 	Z= tf.reshape(Z_2d, [-1, C, D])
 	H= tf.reduce_mean(Z, axis=1, name='H')
-	Yish= tf.matmul( H, W2 )
+	Yish= tf.matmul( H,tf.transpose( W1 ))
 	cost= tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(labels=T, logits=Yish))
 
 	train_op= tf.train.RMSPropOptimizer(lr, decay=0.99, momentum=0.9).minimize(cost)
