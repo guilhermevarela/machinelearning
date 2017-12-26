@@ -24,6 +24,9 @@ def error_rate(p, t):
 	return np.mean(p !=t )
 
 
+def sentences2XY_batch(X_ind, Y_ind, sentences, sc):
+	batch_sz, V = Y_ind.shape
+
 def skipgram():
 	n_files=10
 	V=2000
@@ -32,10 +35,31 @@ def skipgram():
 	batch_sz = 1500
 
 	sentences, word2idx=get_wikipedia_data(n_files=n_files, n_vocab=V, by_paragraph=True)
-	epochs = 20
-	print_period = 10 
-	lr = 1e-4
-	reg =  0.01 
+	epochs= 20
+	print_period= 10 
+	lr= 1e-4
+	reg=  0.01 
+	
+	n_examples=total_examples(sentences, C)
+	n_batches= int(n_examples/ batch_sz)
+
+
+	X_ind = np.zeros((batch_sz, V+1), dtype=np.int32)
+	Y_ind = np.zeros((batch_sz, C, V+1), dtype=np.int32)
+
+	for i in range(epochs):
+		sentences= shuffle(sentences)
+
+		sc=0
+		for j in range(n_batches):				
+			X_ind, Y_ind, sc= sentences2XY_batch(X_ind, Y_ind, sentences, sc)
+
+
+def total_examples(sentences, C):
+	te=0 
+	for sentence in sentences:
+		te+= len(sentence)+2-C
+	return te
 
 if __name__ == '__main__':
 	skipgram()
