@@ -64,7 +64,8 @@ def generate():
 		print(' '.join(sentence))
 
 for line in open('robert_frost.txt'):
-	tokens= remove_punctuation(line.rstrip().lower()).split(' ')
+	tokens= [ t for t in remove_punctuation(line.rstrip().lower()).split(' ')
+						if not(t=='') ]
 
 	T=len(tokens)
 	for i in range(T):
