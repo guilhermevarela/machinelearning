@@ -1,0 +1,31 @@
+'''
+	Created on Feb 15, 2017
+		
+	@author: Varela
+
+	Models page rank as a markov model:
+	*M webpages 
+	*page .: state
+	*visits .: sequence
+	*link .: vote for page's importance
+	*A[i,j]= 1/n[i] if i links to j else 0
+	*A[i,j] .: Markov matrix .: it's rows sum to 1
+	*n[i] total of links on page i (sum of rows is n[i] / n[i] == 1)
+	
+	But, Is the limiting distribution unique?
+	* 1910 Perron-Frobenius	(PF) .: 
+		if we have a markov matrix (all rows sum to 1),
+		all values are strictly positives (none are zeros), 
+		then the stationary distribution exists and is unique 
+
+	How to satisfy PF?
+		*Use smoothing .: give zeros a small probability .:
+			*U ~ 1/M (U MxM)
+			*G= 0.85A + 0.15U
+
+
+
+
+	url https://www.udemy.com/unsupervised-machine-learning-hidden-markov-models-in-python/learn/v4/t/lecture/5257364?start=0
+
+'''
