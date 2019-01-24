@@ -23,8 +23,8 @@ row_sums= {}
 #collect all counts
 
 with open('site_data.csv','r') as f: 
-	for line in f:
-		s, e = line.rstrip.split(',')
+	for line in f:		
+		s, e = line.rstrip().split(',')
 		transitions[(s,e)]= transitions.get((s,e), 0.0)+1.0
 		row_sums[s]=row_sums.get(s, 0.0)+1.0
 
