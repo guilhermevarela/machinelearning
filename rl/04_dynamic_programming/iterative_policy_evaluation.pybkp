@@ -1,0 +1,36 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from grid_world import standard_grid
+
+SMALL_ENOUGH = 10e-4 # threshold for convergence
+
+def print_vales(V, g):
+	for i in range( g.width ):
+		print("____________________")
+		for j in range( g.height ):
+			v = V.get((i, j ), 0)
+			if v >= 0:
+				print( " {:.2f}|".format(v), end=0)
+			else:
+				print( "{:.2f}|".format(v), end=0) # -ve signal takes up an extra space
+		print("")
+
+def print_policy(P, g):
+	for i in range( g.width ):
+		print("____________________")
+		for j in range( g.height ):
+			p = P.get((i, j ), ' ')
+			print (" {:s} |".format(p), end=0)
+		print("")
+
+if __name__ == '__main__':
+# iterative policy evaluation
+# given a policy, let's find it's value function V(s)
+# we will do this for both a uniform random policy and fixed policy
+# NOTE:
+	# there are 2 sources of randomness
+# p(a|s) - deciding what action to ake given the state
+# p(s', r|, s, a) - the next state and reward given your action-state pair
+# we are only modeling p(a|s) uniform
+# how would the code change if p(s',r|s,a) is not deterministic?
+	grid = standard_grid()
