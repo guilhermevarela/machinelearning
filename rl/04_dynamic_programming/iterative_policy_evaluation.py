@@ -61,7 +61,7 @@ if __name__ == '__main__':
 					r = grid.move(a)
 					new_v += p_a * ( r + gamma * V[grid.current_state()]) 
 			V[s] = new_v
-			biggest_change = max( buggest_change, np.abs( old - V[s]))
+			biggest_change = max( biggest_change, np.abs( old_v - V[s]))
 		if biggest_change < SMALL_ENOUGHT:
 			break
 	print("values for uniformly random actions:")
