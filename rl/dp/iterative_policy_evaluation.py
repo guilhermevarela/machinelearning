@@ -1,5 +1,5 @@
 import numpy as np
-from grid_world import standard_grid
+from .grid_world import standard_grid
 
 
 SMALL_ENOUGH = 1e-3
