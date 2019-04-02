@@ -1,13 +1,7 @@
 import numpy as np
-from sys import path
-from os.path import dirname as dir
-path.append(dir(path[0]))
+from grid_world import standard_grid, negative_grid
 
-#import code; code.interact(local=dict(globals(), **locals()))
-
-
-from dp import standard_grid, negative_grid
-from dp import print_values, print_policy
+from iterative_policy_evaluation import print_values, print_policy
 
 SMALL_ENOUGH = 1e-3
 GAMMA = 0.9
